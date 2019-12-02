@@ -11,7 +11,7 @@ namespace Day2
     {
         public static void Main(string[] args)
         {
-           Problem1();
+           Problem2();
         }  
 		
 		private static void Problem1()
@@ -31,6 +31,35 @@ namespace Day2
 			program = RunElfCode(program);
 			string writeableProgram = string.Join(",",program);
 			Console.WriteLine(program[0]);
+			Console.ReadKey(true);
+		}
+
+		private static void Problem2()
+		{
+			string elfCode = FileImporter.Import("Problem2Input")[0];  //only want the first item of the list<string>
+			List<int> program;
+
+			//quick n' dirty search
+			for (int i = 0; i<=99; i++)
+			{
+				for(int j = 0; j<=99; j++)
+				{
+					program = SplitInstructions(elfCode);
+					program[1] = i;
+					program[2] = j;
+
+					Console.WriteLine("Noun: " + i + " Verb: " + j);
+					program = RunElfCode(program);					
+					if(program[0] == 19690720)
+					{
+						Console.WriteLine(100 * i + j);
+						Console.ReadKey(true);
+						System.Environment.Exit(1);
+					}
+				}
+			}
+
+			Console.WriteLine("Not found.");
 			Console.ReadKey(true);
 		}
 
