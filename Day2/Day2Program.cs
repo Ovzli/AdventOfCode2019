@@ -9,9 +9,15 @@ namespace Day2
 {
     class Day2Program : ExampleDay
     {
-        public new static void Main(string[] args)
+        public override static void Main(string[] args)
         {
-            ExampleDay.Main(args);
-        }        
+           
+        }  
+		
+		private static void Problem1()
+		{
+		
+		}
+
     }
 }

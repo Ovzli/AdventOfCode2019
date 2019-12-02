@@ -8,17 +8,16 @@ using GeneralUsage;
 
 namespace AdventOfCode2019.Day1
 {
-    class Day1Problem : ExampleDay
+    class Day1Problem
     {
        
-        public new static void Main(string[] args)
+        public static void Main(string[] args)
         {
-            //ProblemLoop();
             Problem2();
         }
 
         // https://adventofcode.com/2019/day/1
-        private new static void Problem1()
+        private static void Problem1()
         {
             List<String> moduleMasses = FileImporter.Import("Problem1Input");
             int totalMass = 0;
@@ -33,7 +32,7 @@ namespace AdventOfCode2019.Day1
         }
 
         // https://adventofcode.com/2019/day/1#part2
-        private new static void Problem2()
+        private static void Problem2()
         {
             List<String> moduleMasses = FileImporter.Import("Problem1Input");
             int totalMass = 0;
