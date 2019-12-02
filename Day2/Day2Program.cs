@@ -40,28 +40,80 @@ namespace Day2
 			string elfCode = FileImporter.Import("Problem2Input")[0];  //only want the first item of the list<string>
 			List<int> program;
 
-			//quick n' dirty search
-			for (int i = 0; i<=99; i++)
-			{
-				for(int j = 0; j<=99; j++)
-				{
-					program = SplitInstructions(elfCode);
-					program[1] = i;
-					program[2] = j;
+			int maxNoun = 99;
+			int maxVerb = 99;
+			int targetValue = 19690720;
 
-					Console.WriteLine("Noun: " + i + " Verb: " + j);
-					program = RunElfCode(program);					
-					if(program[0] == 19690720)
+			//Saddleback search
+			int output = FindPair(maxNoun, maxVerb, targetValue, elfCode);
+			if(output == -1)
+			{
+				Console.WriteLine("Not found.");
+				Console.ReadKey(true);
+			}
+			else
+			{
+				Console.WriteLine(output);
+				Console.ReadKey(true);
+			}
+
+			//original quick n' dirty search
+			for (int i = 0; i <= 99; i++)
+				if (false) { 				
+				{
+					for(int j = 0; j<=99; j++)
 					{
-						Console.WriteLine(100 * i + j);
-						Console.ReadKey(true);
-						System.Environment.Exit(1);
+						program = SplitInstructions(elfCode);
+						program[1] = i;
+						program[2] = j;
+
+						//Console.WriteLine("Noun: " + i + " Verb: " + j);
+						program = RunElfCode(program);		
+						if(i==0 || j == 0)
+						{
+							Console.WriteLine("Noun: " + i + " Verb: " + j);
+							Console.WriteLine(program[0]);
+						}
+						if(program[0] == 19690720)
+						{
+							Console.WriteLine(100 * i + j);
+							Console.ReadKey(true);
+							System.Environment.Exit(1);
+						}
 					}
 				}
 			}
+		}
 
-			Console.WriteLine("Not found.");
-			Console.ReadKey(true);
+		private static int FindPair(int m, int n, int desiredValue, string elfCode)
+		{
+			int i = m;
+			int j = 0;
+			List<int> program;
+			while (i >= 0 && j <= n )
+			{
+				program = SplitInstructions(elfCode);
+				program[1] = i;
+				program[2] = j;
+
+				Console.WriteLine("Noun: " + i + " Verb: " + j);
+				program = RunElfCode(program);
+				
+				if (program[0] == desiredValue)
+				{
+					return 100 * i + j;
+				}
+				else if(program[0] > desiredValue)
+				{
+					i--;
+				}
+				else //program[0] < desiredValue
+				{
+					j++;
+				}
+			}
+
+			return -1;
 		}
 
 		private static List<int> SplitInstructions(string code)
