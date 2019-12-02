@@ -41,44 +41,59 @@ namespace Day2
 			return instructions;
 		}
 
-		private static List<int> RunElfCode(List<int> program)
+		private static List<int> RunElfCode(List<int> memory)
 		{
-			int currentInstructionLoc = 0;
-			List<int> instructionSet;
-			int opCode = program[currentInstructionLoc];
+			int instructionPointer = 0;
+			int instructionLength = -1;
+			List<int> instructionList;
+			int opCode = memory[instructionPointer];
+
 			while (opCode != 99)
 			{
-				instructionSet = program.GetRange(currentInstructionLoc,4);
+				instructionList = memory.GetRange(instructionPointer,4);
 				if(opCode == 1) //Addition
 				{
-					int val1 = program[instructionSet[1]];
-					int val2 = program[instructionSet[2]];
-					program[instructionSet[3]] = val1 + val2; 
+					instructionLength = 4;
+					int val1 = memory[instructionList[1]];
+					int val2 = memory[instructionList[2]];
+					memory[instructionList[3]] = val1 + val2; 
 				}
 				else if(opCode == 2) //Multiplication
 				{
-					int val1 = program[instructionSet[1]];
-					int val2 = program[instructionSet[2]];
-					program[instructionSet[3]] = val1 * val2; 
+					instructionLength = 4;
+					int val1 = memory[instructionList[1]];
+					int val2 = memory[instructionList[2]];
+					memory[instructionList[3]] = val1 * val2; 
 				}
 				else if(opCode == 99)
 				{
+					instructionLength = 1;
 					//Do nothing, but we shouldn't get here in the first place
+				}
+
+				//error conditions below
+				else if(instructionLength == -1)
+				{
+					//Uh-oh
+					Console.WriteLine("Instruction length never set. Instruction Pointer Location: " + instructionPointer + " Opcode: " + opCode);
+					Console.ReadKey(true);
+					System.Environment.Exit(1);
 				}
 				else
 				{
 					//Uh-oh
-					Console.WriteLine("Something bad happened. Head Instruction Location: "+ currentInstructionLoc +" Head Instruction: "+opCode);
+					Console.WriteLine("Something bad happened. Instruction Pointer Location: " + instructionPointer + " Opcode: " + opCode);
 					Console.ReadKey(true);
 					System.Environment.Exit(1);
 				}
 
 				//Move to next code block
-				currentInstructionLoc += 4;
-				opCode = program[currentInstructionLoc];
+				instructionPointer += instructionLength;
+				instructionLength = -1;
+				opCode = memory[instructionPointer];
 			}
 
-			return program;
+			return memory;
 		}
 
     }
