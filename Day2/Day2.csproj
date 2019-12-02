@@ -4,10 +4,10 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{7F1E607C-C4CD-4834-A7E7-3CFD9E384183}</ProjectGuid>
+    <ProjectGuid>{11939EC9-D110-4743-BDB5-AF4E6E00FCC7}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>AdventOfCode2019</RootNamespace>
-    <AssemblyName>AdventOfCode2019</AssemblyName>
+    <RootNamespace>Day2</RootNamespace>
+    <AssemblyName>Day2</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -42,17 +42,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Day1\Day1Problem1.cs" />
-    <Compile Include="Day1\Day1Problem2.cs" />
-    <Compile Include="FileImporter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Content Include="Data\Problem1Input.txt" />
-  </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
