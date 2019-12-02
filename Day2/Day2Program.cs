@@ -70,15 +70,7 @@ namespace Day2
 					instructionLength = 1;
 					//Do nothing, but we shouldn't get here in the first place
 				}
-
 				//error conditions below
-				else if(instructionLength == -1)
-				{
-					//Uh-oh
-					Console.WriteLine("Instruction length never set. Instruction Pointer Location: " + instructionPointer + " Opcode: " + opCode);
-					Console.ReadKey(true);
-					System.Environment.Exit(1);
-				}
 				else
 				{
 					//Uh-oh
@@ -86,6 +78,15 @@ namespace Day2
 					Console.ReadKey(true);
 					System.Environment.Exit(1);
 				}
+
+				if (instructionLength == -1) //yes, this is meant to be separate from the if block above
+				{
+					//Uh-oh
+					Console.WriteLine("Instruction length never set. Instruction Pointer Location: " + instructionPointer + " Opcode: " + opCode);
+					Console.ReadKey(true);
+					System.Environment.Exit(1);
+				}
+				
 
 				//Move to next code block
 				instructionPointer += instructionLength;
