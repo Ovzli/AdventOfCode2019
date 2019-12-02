@@ -5,13 +5,14 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 using System.Reflection;
+using System.Windows.Forms;
 
 namespace GeneralUsage
 {
-    public class FileImporter
+    public class UsefulStuff
     {
 
-        public static List<string> Import(string file)
+        public static List<string> ImportTxtFileAsLines(string file)
         {
             //string path = "C:\\Users\\14pie\\source\\repos\\AdventOfCode2019\\GeneralUsage\\Data\\" + file + ".txt";
             string path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"Data\"+file+".txt");
@@ -23,5 +24,13 @@ namespace GeneralUsage
             List<string> lineList = new List<string>(lines);
             return lineList;
         }
+
+		public static void WriteSolution(string text)
+		{
+			Console.WriteLine(text);
+			Clipboard.SetText(text);
+			Console.ReadKey(true);
+		}
+
     }
 }

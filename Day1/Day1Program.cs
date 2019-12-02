@@ -10,8 +10,8 @@ namespace AdventOfCode2019.Day1
 {
     class Day1Problem
     {
-       
-        public static void Main(string[] args)
+		[STAThread]
+		public static void Main(string[] args)
         {
             Problem2();
         }
@@ -19,7 +19,7 @@ namespace AdventOfCode2019.Day1
         // https://adventofcode.com/2019/day/1
         private static void Problem1()
         {
-            List<String> moduleMasses = FileImporter.Import("Problem1Input");
+            List<String> moduleMasses = UsefulStuff.ImportTxtFileAsLines("Problem1Input");
             int totalMass = 0;
             foreach (string massStr in moduleMasses)
             {
@@ -27,22 +27,20 @@ namespace AdventOfCode2019.Day1
                 int fuelReq = Convert.ToInt32(Math.Floor(mass / 3) - 2);
                 totalMass += fuelReq;
             }
-            Console.WriteLine(totalMass);
-            Console.ReadKey(true);
+			UsefulStuff.WriteSolution(totalMass.ToString());
         }
 
         // https://adventofcode.com/2019/day/1#part2
         private static void Problem2()
         {
-            List<String> moduleMasses = FileImporter.Import("Problem1Input");
+            List<String> moduleMasses = UsefulStuff.ImportTxtFileAsLines("Problem1Input");
             int totalMass = 0;
             foreach (string massStr in moduleMasses)
             {
                 double mass = Int32.Parse(massStr);
                 totalMass += calculateNeededFuel(mass);
             }
-            Console.WriteLine(totalMass);
-            Console.ReadKey(true);
+			UsefulStuff.WriteSolution(totalMass.ToString());
         }
 
         private static int calculateNeededFuel(double inputMass) //yay recursion

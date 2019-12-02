@@ -10,7 +10,8 @@ namespace Day2
     class Day2Program
     {
 		//https://adventofcode.com/2019/day/2
-        public static void Main(string[] args)
+		[STAThread]
+		public static void Main(string[] args)
         {
            Problem2();
         }  
@@ -21,7 +22,7 @@ namespace Day2
 			string exampleElfCode2 = "2,3,0,3,99";
 			string exampleElfCode3 = "2,4,4,5,99,0";
 			string exampleElfCode4 = "1,1,1,4,99,5,6,0,99";
-			string elfCode = FileImporter.Import("Problem2Input")[0];  //only want the first item of the list<string>
+			string elfCode = UsefulStuff.ImportTxtFileAsLines("Problem2Input")[0];  //only want the first item of the list<string>
 			List<int> program = SplitInstructions(elfCode);
 
 			//Do Problem 1 specific stuff
@@ -31,13 +32,12 @@ namespace Day2
 
 			program = RunElfCode(program);
 			string writeableProgram = string.Join(",",program);
-			Console.WriteLine(program[0]);
-			Console.ReadKey(true);
+			UsefulStuff.WriteSolution(program[0].ToString());
 		}
 
 		private static void Problem2()
 		{
-			string elfCode = FileImporter.Import("Problem2Input")[0];  //only want the first item of the list<string>
+			string elfCode = UsefulStuff.ImportTxtFileAsLines("Problem2Input")[0];  //only want the first item of the list<string>
 			List<int> program;
 
 			int maxNoun = 99;
@@ -48,13 +48,11 @@ namespace Day2
 			int output = FindPair(maxNoun, maxVerb, targetValue, elfCode);
 			if(output == -1)
 			{
-				Console.WriteLine("Not found.");
-				Console.ReadKey(true);
+				UsefulStuff.WriteSolution("Not Found");
 			}
 			else
 			{
-				Console.WriteLine(output);
-				Console.ReadKey(true);
+				UsefulStuff.WriteSolution(output.ToString());
 			}
 
 			//original quick n' dirty search
