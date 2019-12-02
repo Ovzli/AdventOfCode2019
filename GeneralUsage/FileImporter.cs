@@ -8,12 +8,6 @@ namespace GeneralUsage
 {
     public class FileImporter
     {
-        public static void Main(string[] args)
-        {
-            //so Visual Studio dosen't yell at me
-            //yes, there are better ways to set this up than I have done
-        }
-
 
         public static List<string> Import(string file)
         {
