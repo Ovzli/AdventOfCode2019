@@ -13,7 +13,7 @@ namespace Day3
 		[STAThread]
 		public static void Main(string[] args)
 		{
-			Problem2();
+			Problem1();
 		}
 
 		public static void Problem1()
@@ -25,23 +25,24 @@ namespace Day3
 			List<string> wireOneDirections = new List<string>(wires[0].Split(','));
 			List<string> wireTwoDirections = new List<string>(wires[1].Split(','));
 
-			List<wirePosition> wireOnePath = CalculateWirePath(wireOneDirections);
-			List<wirePosition> wireTwoPath = CalculateWirePath(wireTwoDirections);
+			List<WirePosition> wireOnePath = CalculateWirePath(wireOneDirections);
+			List<WirePosition> wireTwoPath = CalculateWirePath(wireTwoDirections);
 
-			List<wirePosition> wireIntersections = new List<wirePosition>();
-			//IEnumerable<wirePosition> wireIntersections = (wireOnePath).Intersect(wireTwoPath);
-			foreach (wirePosition i in wireOnePath) //lol brute force, this takes two minutes to run
-			{
-				foreach (wirePosition j in wireTwoPath)
-				{
-					if ((i.xPos == j.xPos) && (i.yPos == j.yPos))
-					{
-						wireIntersections.Add(i);
-					}
-				}
-			}
+			//old brute force code, this takes two minutes to run
+			//foreach (wirePosition i in wireOnePath) 
+			//List<wirePosition> wireIntersections = new List<wirePosition>();
+			//{
+			//	foreach (wirePosition j in wireTwoPath)
+			//	{
+			//		if ((i.xPos == j.xPos) && (i.yPos == j.yPos))
+			//		{
+			//			wireIntersections.Add(i);
+			//		}
+			//	}
+			//}
+			IEnumerable<WirePosition> wireIntersections = (wireOnePath).Intersect(wireTwoPath, new WirePositionComparer());
 			List<int> intersectionDistances = new List<int>();
-			foreach(wirePosition intersection in wireIntersections)
+			foreach(WirePosition intersection in wireIntersections)
 			{
 				if (intersection.xPos != 0 && intersection.yPos != 0)
 				{
@@ -67,16 +68,16 @@ namespace Day3
 			List<string> wireOneDirections = new List<string>(wires[0].Split(','));
 			List<string> wireTwoDirections = new List<string>(wires[1].Split(','));
 
-			List<wirePosition> wireOnePath = CalculateWirePath(wireOneDirections);
-			List<wirePosition> wireTwoPath = CalculateWirePath(wireTwoDirections);
+			List<WirePosition> wireOnePath = CalculateWirePath(wireOneDirections);
+			List<WirePosition> wireTwoPath = CalculateWirePath(wireTwoDirections);
 			
 			List<int> intersectionSignalDelays = new List<int>();
 			//IEnumerable<wirePosition> wireIntersections = (wireOnePath).Intersect(wireTwoPath);
-			foreach (wirePosition i in wireOnePath) //lol brute force, this takes two minutes to run
+			foreach (WirePosition i in wireOnePath) //lol brute force, this takes two minutes to run
 			{
 				if (i.xPos != 0 && i.yPos != 0)
 				{
-					foreach (wirePosition j in wireTwoPath)
+					foreach (WirePosition j in wireTwoPath)
 					{
 						if ((i.xPos == j.xPos) && (i.yPos == j.yPos))
 						{
@@ -89,13 +90,13 @@ namespace Day3
 			UsefulStuff.WriteSolution(closestIntersection.ToString());
 		}
 
-		private static List<wirePosition> CalculateWirePath(List<string> wireDirections)
+		private static List<WirePosition> CalculateWirePath(List<string> wireDirections)
 		{
-			wirePosition origin = new wirePosition();
+			WirePosition origin = new WirePosition();
 			origin.xPos = 0;
 			origin.yPos = 0;
 			origin.stepsFromOrigin = 0;
-			List<wirePosition> wirePath = new List<wirePosition> { origin };
+			List<WirePosition> wirePath = new List<WirePosition> { origin };
 			foreach (string instruction in wireDirections)
 			{
 				string direction = instruction.Substring(0, 1);
@@ -103,7 +104,7 @@ namespace Day3
 
 				for(int i = 0; i < distance; i++)
 				{
-					wirePosition newWirePosition = wirePath[wirePath.Count - 1].ShallowCopy();
+					WirePosition newWirePosition = wirePath[wirePath.Count - 1].ShallowCopy();
 					if (direction == "U") {newWirePosition.yPos++; }
 					else if (direction == "D") { newWirePosition.yPos--; }
 					else if (direction == "R") { newWirePosition.xPos++; }
@@ -122,15 +123,37 @@ namespace Day3
 			return wirePath;
 		}
 
-		private class wirePosition
+		private class WirePosition
 		{
 			public int xPos;
 			public int yPos;
 			public int stepsFromOrigin;
 
-			public wirePosition ShallowCopy()
+			public WirePosition ShallowCopy()
 			{
-				return (wirePosition)this.MemberwiseClone();
+				return (WirePosition)this.MemberwiseClone();
+			}
+		}
+
+		private class WirePositionComparer : IEqualityComparer<WirePosition>
+		{
+			public bool Equals(WirePosition a, WirePosition b)
+			{
+				if(ReferenceEquals(a,b)) { return true; }
+
+				if(ReferenceEquals(a,null) || ReferenceEquals(b,null)) { return false; }
+
+				return a.xPos == b.xPos && a.yPos == b.yPos;
+			}
+
+			public int GetHashCode(WirePosition w)
+			{
+				if (ReferenceEquals(w, null)) { return 0; }
+
+				int hashWirePositionXPos = w.xPos.GetHashCode();
+				int hashWirePositionYPos = w.yPos.GetHashCode();
+
+				return hashWirePositionXPos ^ hashWirePositionYPos;
 			}
 		}
 	}
