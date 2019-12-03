@@ -13,7 +13,7 @@ namespace Day2
 		[STAThread]
 		public static void Main(string[] args)
         {
-           Problem2();
+           Problem1();
         }  
 		
 		private static void Problem1()
@@ -23,14 +23,9 @@ namespace Day2
 			//string exampleElfCode3 = "2,4,4,5,99,0";
 			//string exampleElfCode4 = "1,1,1,4,99,5,6,0,99";
 			string elfCode = UsefulStuff.ImportTxtFileAsLines("Problem2Input")[0];  //only want the first item of the list<string>
-			List<int> program = ElfComputer.ParseInstructions(elfCode);
+            List<int> program = ElfComputer.ParseInstructions(elfCode);
 
-			//Do Problem 1 specific stuff
-			program[1] = 12;
-			program[2] = 2;
-			//
-
-			program = ElfComputer.RunElfCode(program);
+			program = ElfComputer.RunElfCode(12,2,program);
 			string writeableProgram = string.Join(",",program);
 			UsefulStuff.WriteSolution(program[0].ToString());
 		}
@@ -89,12 +84,10 @@ namespace Day2
 			List<int> program;
 			while (i >= 0 && j <= n )
 			{
-				program = ElfComputer.ParseInstructions(elfCode);
-				program[1] = i;
-				program[2] = j;
+				program = ElfComputer.ParseInstructions(elfCode); //pull from code everytime because I didn't take the time to work out deep/shallow copy in C#
 
 				Console.WriteLine("Noun: " + i + " Verb: " + j);
-				program = ElfComputer.RunElfCode(program);
+				program = ElfComputer.RunElfCode(i, j, program);
 				
 				if (program[0] == desiredValue)
 				{

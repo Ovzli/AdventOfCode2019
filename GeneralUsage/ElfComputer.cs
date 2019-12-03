@@ -8,13 +8,19 @@ namespace GeneralUsage
 {
     public class ElfComputer
     {
-        public static List<int> RunElfCode(List<int> memory)
+        public static List<int> RunElfCode(int noun, int verb, List<int> memory)
         {
+            //declare stuff
             int instructionPointer = 0;
             int instructionLength = -1;
             List<int> instructionList;
             int opCode = memory[instructionPointer];
 
+            //set up memory
+            memory[1] = noun;
+            memory[2] = verb;           
+
+            //run the computer
             while (opCode != 99)
             {
                 instructionList = memory.GetRange(instructionPointer, 4);
