@@ -13,13 +13,13 @@ namespace Day3
 		[STAThread]
 		public static void Main(string[] args)
 		{
-			Problem1();
+			Problem2();
 		}
 
 		public static void Problem1()
 		{
-			string exampleWire1A = "R8,U5,L5,D3";
-			string exampleWire1B = "U7,R6,D4,L4";
+			//string exampleWire1A = "R8,U5,L5,D3";
+			//string exampleWire1B = "U7,R6,D4,L4";
 			List<string> wires = UsefulStuff.ImportTxtFileAsLines("Problem3Input");
 
 			List<string> wireOneDirections = new List<string>(wires[0].Split(','));
@@ -56,11 +56,45 @@ namespace Day3
 			UsefulStuff.WriteSolution(closestIntersection.ToString());
 		}
 
+		private static void Problem2()
+		{
+			//string exampleWire1A = "R8,U5,L5,D3";
+			//string exampleWire1B = "U7,R6,D4,L4";
+			//string exampleWire2A = "R75,D30,R83,U83,L12,D49,R71,U7,L72";
+			//string exampleWire2B = "U62,R66,U55,R34,D71,R55,D58,R83";
+			List<string> wires = UsefulStuff.ImportTxtFileAsLines("Problem3Input");
+
+			List<string> wireOneDirections = new List<string>(wires[0].Split(','));
+			List<string> wireTwoDirections = new List<string>(wires[1].Split(','));
+
+			List<wirePosition> wireOnePath = CalculateWirePath(wireOneDirections);
+			List<wirePosition> wireTwoPath = CalculateWirePath(wireTwoDirections);
+			
+			List<int> intersectionSignalDelays = new List<int>();
+			//IEnumerable<wirePosition> wireIntersections = (wireOnePath).Intersect(wireTwoPath);
+			foreach (wirePosition i in wireOnePath) //lol brute force, this takes two minutes to run
+			{
+				if (i.xPos != 0 && i.yPos != 0)
+				{
+					foreach (wirePosition j in wireTwoPath)
+					{
+						if ((i.xPos == j.xPos) && (i.yPos == j.yPos))
+						{
+							intersectionSignalDelays.Add(i.stepsFromOrigin + j.stepsFromOrigin);
+						}
+					}
+				}
+			}
+			int closestIntersection = intersectionSignalDelays.Min();
+			UsefulStuff.WriteSolution(closestIntersection.ToString());
+		}
+
 		private static List<wirePosition> CalculateWirePath(List<string> wireDirections)
 		{
 			wirePosition origin = new wirePosition();
 			origin.xPos = 0;
 			origin.yPos = 0;
+			origin.stepsFromOrigin = 0;
 			List<wirePosition> wirePath = new List<wirePosition> { origin };
 			foreach (string instruction in wireDirections)
 			{
@@ -81,6 +115,7 @@ namespace Day3
 						Console.ReadKey(true);
 						System.Environment.Exit(1);
 					}
+					newWirePosition.stepsFromOrigin++;
 					wirePath.Add(newWirePosition);
 				}
 			}
@@ -91,6 +126,7 @@ namespace Day3
 		{
 			public int xPos;
 			public int yPos;
+			public int stepsFromOrigin;
 
 			public wirePosition ShallowCopy()
 			{
