@@ -13,7 +13,7 @@ namespace Day6
         [STAThread]
         static void Main(string[] args)
         {
-            Problem1();
+            Problem2();
         }
 
         private static void Problem1()
@@ -32,6 +32,24 @@ namespace Day6
             }
             UsefulStuff.WriteSolution(checkSum.ToString());
             
+        }
+
+        private static void Problem2()
+        {
+            List<string> input = UsefulStuff.ImportTxtFileAsLines("Day6Input");
+            List<Orbit> orbitList = MakeOrbitList(input);
+
+            Dictionary<string, string> orbitDic = orbitList.ToDictionary(x => x.OrbitalBody, x => x.Barycenter);
+
+            List<string> myHeirarchy = GetOrbitHeirarchy(orbitDic,"YOU");
+            List<string> santaHeirarchy = GetOrbitHeirarchy(orbitDic,"SAN");
+
+            IEnumerable<string> myPart = myHeirarchy.Except(santaHeirarchy);
+            IEnumerable<string> santaPart = santaHeirarchy.Except(myHeirarchy);
+
+            UsefulStuff.WriteSolution((myPart.Count() + santaPart.Count()).ToString());
+
+
         }
 
         private static List<Orbit> MakeOrbitList(List<string> input)
@@ -56,6 +74,14 @@ namespace Day6
             return checkSum;
         }
 
+        private static List<string> GetOrbitHeirarchy(Dictionary<string, string> orbitDic, string orbitalBody)
+        {
+            if (orbitalBody == "COM") { return new List<string> { "COM" }; }
+            string barycenter = orbitDic[orbitalBody];
+            List<string> orbitHeirarchy = GetOrbitHeirarchy(orbitDic, barycenter);
+            orbitHeirarchy.Add(barycenter);
+            return orbitHeirarchy;
+        }
         
     }
 
