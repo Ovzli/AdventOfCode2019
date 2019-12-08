@@ -27,7 +27,6 @@ namespace GeneralUsage
 
 		public static void WriteSolution(string text)
 		{
-            Console.WriteLine("");
 			Console.WriteLine(text);
 			Clipboard.SetText(text);
 			Console.ReadKey(true);
