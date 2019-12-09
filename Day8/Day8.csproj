@@ -4,10 +4,10 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{4FB1427C-E62A-467D-9899-E480BD21F9A0}</ProjectGuid>
+    <ProjectGuid>{D5A423F1-2AD0-4293-88FA-6F8E964F4140}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>GeneralUsage</RootNamespace>
-    <AssemblyName>GeneralUsage</AssemblyName>
+    <RootNamespace>Day8</RootNamespace>
+    <AssemblyName>Day8</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -34,7 +34,6 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -43,24 +42,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ElfComputer.cs" />
-    <Compile Include="ExampleDay.cs" />
-    <Compile Include="FileImporter.cs" />
+    <Compile Include="Day8Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Data\Day4Input.txt" />
-    <Content Include="Data\Day5Input.txt" />
-    <Content Include="Data\Day6Input.txt" />
-    <Content Include="Data\Day7Input.txt" />
-    <Content Include="Data\Day8Input.txt" />
-    <Content Include="Data\Problem1Input.txt" />
-    <Content Include="Data\Problem2Input.txt" />
-    <Content Include="Data\Problem3Input.txt" />
-    <Content Include="Data\Day6Example1.txt" />
+    <ProjectReference Include="..\GeneralUsage\GeneralUsage.csproj">
+      <Project>{4fb1427c-e62a-467d-9899-e480bd21f9a0}</Project>
+      <Name>GeneralUsage</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
