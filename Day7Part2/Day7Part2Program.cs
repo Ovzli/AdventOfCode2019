@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -19,7 +20,7 @@ namespace Day7Part2
 
         private static void Problem2()
         {
-            //string elfCode = "3,23,3,24,1002,24,10,24,1002,23,-1,23,101,5,23,23,1,24,23,23,4,23,99,0,0";
+            //string elfCode = "3,26,1001,26,-4,26,3,27,1002,27,2,27,1,27,26,27,4,27,1001,28,-1,28,1005,28,6,99,0,0,5";
             string elfCode = UsefulStuff.ImportTxtFileAsLines("Day7Input")[0];
 
             List<int> outputs = new List<int>();
@@ -39,20 +40,76 @@ namespace Day7Part2
                 string phaseD = phases[3].ToString();
                 string phaseE = phases[4].ToString();
 
-                List<int> ampA = ParseInstructions(elfCode);
+                ElfComputer AmpA = new ElfComputer(ParseInstructions(elfCode));
+                Hashtable outputA = AmpA.ProcessStep(phaseA);              
+                ElfComputer AmpB = new ElfComputer(ParseInstructions(elfCode));
+                Hashtable outputB = AmpB.ProcessStep(phaseB);
+                ElfComputer AmpC = new ElfComputer(ParseInstructions(elfCode));
+                Hashtable outputC = AmpC.ProcessStep(phaseC);
+                ElfComputer AmpD = new ElfComputer(ParseInstructions(elfCode));
+                Hashtable outputD = AmpD.ProcessStep(phaseD);
+                ElfComputer AmpE = new ElfComputer(ParseInstructions(elfCode));
+                Hashtable outputE = AmpE.ProcessStep(phaseE);
 
-
-                while (inputStack.Count() > 1)
+                string lastOutput = "0";
+                while ((string)outputA["Status"] != "Halt" ||
+                       (string)outputB["Status"] != "Halt" ||
+                       (string)outputC["Status"] != "Halt" ||
+                       (string)outputD["Status"] != "Halt" ||
+                       (string)outputE["Status"] != "Halt")
                 {
-                    Stack<string> inputBuffer = new Stack<string>();
-                    inputBuffer.Push(inputStack.Pop());
-                    inputBuffer.Push(inputStack.Pop());
-                    List<int> memory = ParseInstructions(elfCode);
-                    outputs = RunElfCode(memory, inputBuffer);
+                    bool runFlagA = true;
+                    while(runFlagA && (string)outputA["Status"] != "Halt")
+                    {
+                        if((string)outputA["NextOpCode"] == "3") { outputA = AmpA.ProcessStep(lastOutput); }
+                        else { outputA = AmpA.ProcessStep("NA"); }
+                        runFlagA = !outputA.ContainsKey("Output");
+                    }
+                    if ((string)outputA["Status"] != "Halt") { lastOutput = (string)outputA["Output"]; }
+                    
 
-                    inputStack.Push(outputs[outputs.Count() - 1].ToString());
+                    bool runFlagB = true;
+                    while (runFlagB && (string)outputB["Status"] != "Halt")
+                    {
+                        if ((string)outputB["NextOpCode"] == "3") { outputB = AmpB.ProcessStep(lastOutput); }
+                        else { outputB = AmpB.ProcessStep("NA"); }
+                        runFlagB = !outputB.ContainsKey("Output");
+                    }
+                    if ((string)outputB["Status"] != "Halt")
+                    { lastOutput = (string)outputB["Output"]; }
+
+                    bool runFlagC = true;
+                    while (runFlagC && (string)outputC["Status"] != "Halt")
+                    {
+                        if ((string)outputC["NextOpCode"] == "3") { outputC = AmpC.ProcessStep(lastOutput); }
+                        else { outputC = AmpC.ProcessStep("NA"); }
+                        runFlagC = !outputC.ContainsKey("Output");
+                    }
+                    if ((string)outputC["Status"] != "Halt")
+                    { lastOutput = (string)outputC["Output"]; }
+
+                    bool runFlagD = true;
+                    while (runFlagD && (string)outputD["Status"] != "Halt")
+                    {
+                        if ((string)outputD["NextOpCode"] == "3") { outputD = AmpD.ProcessStep(lastOutput); }
+                        else { outputD = AmpD.ProcessStep("NA"); }
+                        runFlagD = !outputD.ContainsKey("Output");
+                    }
+                    if ((string)outputD["Status"] != "Halt")
+                    { lastOutput = (string)outputD["Output"]; }
+
+                    bool runFlagE = true;
+                    while (runFlagE && (string)outputE["Status"] != "Halt")
+                    {
+                        if ((string)outputE["NextOpCode"] == "3") { outputE = AmpE.ProcessStep(lastOutput); }
+                        else { outputE = AmpE.ProcessStep("NA"); }
+                        runFlagE = !outputE.ContainsKey("Output");
+                    }
+                    if ((string)outputE["Status"] != "Halt")
+                    { lastOutput = (string)outputE["Output"]; }
                 }
-                if (maxOutput < outputs[outputs.Count() - 1]) { maxOutput = outputs[outputs.Count() - 1]; }
+                int lastVal = Int32.Parse(lastOutput);
+                if (maxOutput < lastVal) { maxOutput = lastVal; }
             }
 
             UsefulStuff.WriteSolution(maxOutput.ToString());
@@ -93,157 +150,326 @@ namespace Day7Part2
 
         //Stuff needed for elf programs below (for easy copy and paste)
 
-        public static List<int> RunElfCode(List<int> memory, Stack<string> inputBuffer)
+        class ElfComputer
         {
-            Console.WriteLine("- Program Start -");
-            //declare stuff
-            int instructionPointer = 0;
-            int instructionLength = -1;
-            bool pointerMoved = false;
+            List<int> memory;
+            private int instructionPointer;
+            int instructionLength;
+            bool pointerMoved;
             List<int> instructionList;
-            int opCode = memory[instructionPointer] % 100;
-            List<int> outputs = new List<int>();
+            int opCode;
 
-            //run the computer
-            while (opCode != 99)
-            {
-                if (opCode == 1) //Addition
+            public ElfComputer(List<int> inputMemory)
                 {
-                    instructionLength = 4;
-                    instructionList = memory.GetRange(instructionPointer, instructionLength);
-
-                    List<int> readInstructions = instructionList.GetRange(1, 2);
-                    List<int> values = GetValues(instructionList[0], readInstructions, memory);
-
-                    memory[instructionList[3]] = values[0] + values[1];
-                }
-                else if (opCode == 2) //Multiplication
-                {
-                    instructionLength = 4;
-                    instructionList = memory.GetRange(instructionPointer, instructionLength);
-
-                    List<int> readInstructions = instructionList.GetRange(1, 2);
-                    List<int> values = GetValues(instructionList[0], readInstructions, memory);
-
-                    memory[instructionList[3]] = values[0] * values[1];
-                }
-                else if (opCode == 3) //input
-                {
-                    int input;
-                    instructionLength = 2;
-                    instructionList = memory.GetRange(instructionPointer, instructionLength);
-                    if (inputBuffer.Count() != 0)
-                    {
-                        string providedInput = inputBuffer.Pop();
-                        if (providedInput != "manual")
-                        {
-                            input = Int32.Parse(providedInput);
-                            Console.WriteLine("Input used: " + providedInput);
-                        }
-                        else
-                        {
-                            Console.Write("Enter input: ");
-                            input = Int32.Parse(Console.ReadLine());
-                            Console.Write("\n");
-                        }
-                    }
-                    else
-                    {
-                        Console.Write("Enter input: ");
-                        input = Int32.Parse(Console.ReadLine());
-                        Console.Write("\n");
-                    }
-
-                    memory[instructionList[1]] = input;
-                }
-                else if (opCode == 4) //output
-                {
-                    instructionLength = 2;
-                    instructionList = memory.GetRange(instructionPointer, instructionLength);
-
-                    List<int> readInstructions = instructionList.GetRange(1, 1);
-                    List<int> values = GetValues(instructionList[0], readInstructions, memory);
-
-                    Console.WriteLine("Output: " + values[0].ToString());
-                    outputs.Add(values[0]);
-                }
-                else if (opCode == 5) //jump if true
-                {
-                    instructionLength = 3;
-                    instructionList = memory.GetRange(instructionPointer, instructionLength);
-
-                    List<int> readInstructions = instructionList.GetRange(1, 2);
-                    List<int> values = GetValues(instructionList[0], readInstructions, memory);
-
-                    if (values[0] != 0) { instructionPointer = values[1]; pointerMoved = true; }
-                }
-                else if (opCode == 6) //jump if false
-                {
-                    instructionLength = 3;
-                    instructionList = memory.GetRange(instructionPointer, instructionLength);
-
-                    List<int> readInstructions = instructionList.GetRange(1, 2);
-                    List<int> values = GetValues(instructionList[0], readInstructions, memory);
-
-                    if (values[0] == 0) { instructionPointer = values[1]; pointerMoved = true; }
-                }
-                else if (opCode == 7) //less than
-                {
-                    instructionLength = 4;
-                    instructionList = memory.GetRange(instructionPointer, instructionLength);
-
-                    List<int> readInstructions = instructionList.GetRange(1, 2);
-                    List<int> values = GetValues(instructionList[0], readInstructions, memory);
-
-                    memory[instructionList[3]] = Convert.ToInt32(values[0] < values[1]);
-                }
-                else if (opCode == 8) //equals
-                {
-                    instructionLength = 4;
-                    instructionList = memory.GetRange(instructionPointer, instructionLength);
-
-                    List<int> readInstructions = instructionList.GetRange(1, 2);
-                    List<int> values = GetValues(instructionList[0], readInstructions, memory);
-
-                    memory[instructionList[3]] = Convert.ToInt32(values[0] == values[1]);
-                }
-                else if (opCode == 99)
-                {
-                    instructionLength = 1;
-                    instructionList = memory.GetRange(instructionPointer, instructionLength);
-                    Console.WriteLine("Halt");
-                    //Do nothing, but we shouldn't get here in the first place
-                }
-                //error conditions below
-                else
-                {
-                    //Uh-oh
-                    Console.WriteLine("Something bad happened. Instruction Pointer Location: " + instructionPointer + " Opcode: " + opCode);
-                    Console.ReadKey(true);
-                    System.Environment.Exit(1);
-                }
-
-                if (instructionLength == -1) //yes, this is meant to be separate from the if block above
-                {
-                    //Uh-oh
-                    Console.WriteLine("Instruction length never set. Instruction Pointer Location: " + instructionPointer + " Opcode: " + opCode);
-                    Console.ReadKey(true);
-                    System.Environment.Exit(1);
-                }
-
-
-                //Move to next code block
-                if (!pointerMoved)
-                {
-                    instructionPointer += instructionLength;
-                }
-                pointerMoved = false;
+                memory = inputMemory;
+                instructionPointer = 0;
                 instructionLength = -1;
+                pointerMoved = false;
                 opCode = memory[instructionPointer] % 100;
             }
 
-            return outputs;
+            public Hashtable ProcessStep(string inputStr)
+            {
+                Hashtable output = new Hashtable();
+               if (opCode != 99)
+                {
+                    output.Add("Status", "Running");
+                    if (opCode == 1) //Addition
+                    {
+                        instructionLength = 4;
+                        instructionList = memory.GetRange(instructionPointer, instructionLength);
+
+                        List<int> readInstructions = instructionList.GetRange(1, 2);
+                        List<int> values = GetValues(instructionList[0], readInstructions, memory);
+
+                        memory[instructionList[3]] = values[0] + values[1];
+                    }
+                    else if (opCode == 2) //Multiplication
+                    {
+                        instructionLength = 4;
+                        instructionList = memory.GetRange(instructionPointer, instructionLength);
+
+                        List<int> readInstructions = instructionList.GetRange(1, 2);
+                        List<int> values = GetValues(instructionList[0], readInstructions, memory);
+
+                        memory[instructionList[3]] = values[0] * values[1];
+                    }
+                    else if (opCode == 3) //input
+                    {
+                        int input = new int();
+                        instructionLength = 2;
+                        instructionList = memory.GetRange(instructionPointer, instructionLength);
+                        if (inputStr != "NA")
+                        {
+                            if (inputStr != "manual")
+                            {
+                                input = Int32.Parse(inputStr);
+                                Console.WriteLine("Input used: " + inputStr);
+                            }
+                            else
+                            {
+                                Console.Write("Enter input: ");
+                                input = Int32.Parse(Console.ReadLine());
+                                Console.Write("\n");
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine("Something bad happened. Input expected.");
+                            Console.ReadKey(true);
+                            System.Environment.Exit(1);
+                        }
+
+                        memory[instructionList[1]] = input;
+                    }
+                    else if (opCode == 4) //output
+                    {
+                        instructionLength = 2;
+                        instructionList = memory.GetRange(instructionPointer, instructionLength);
+
+                        List<int> readInstructions = instructionList.GetRange(1, 1);
+                        List<int> values = GetValues(instructionList[0], readInstructions, memory);
+
+                        Console.WriteLine("Output: " + values[0].ToString());
+                        output.Add("Output", values[0].ToString());
+                    }
+                    else if (opCode == 5) //jump if true
+                    {
+                        instructionLength = 3;
+                        instructionList = memory.GetRange(instructionPointer, instructionLength);
+
+                        List<int> readInstructions = instructionList.GetRange(1, 2);
+                        List<int> values = GetValues(instructionList[0], readInstructions, memory);
+
+                        if (values[0] != 0) { instructionPointer = values[1]; pointerMoved = true; }
+                    }
+                    else if (opCode == 6) //jump if false
+                    {
+                        instructionLength = 3;
+                        instructionList = memory.GetRange(instructionPointer, instructionLength);
+
+                        List<int> readInstructions = instructionList.GetRange(1, 2);
+                        List<int> values = GetValues(instructionList[0], readInstructions, memory);
+
+                        if (values[0] == 0) { instructionPointer = values[1]; pointerMoved = true; }
+                    }
+                    else if (opCode == 7) //less than
+                    {
+                        instructionLength = 4;
+                        instructionList = memory.GetRange(instructionPointer, instructionLength);
+
+                        List<int> readInstructions = instructionList.GetRange(1, 2);
+                        List<int> values = GetValues(instructionList[0], readInstructions, memory);
+
+                        memory[instructionList[3]] = Convert.ToInt32(values[0] < values[1]);
+                    }
+                    else if (opCode == 8) //equals
+                    {
+                        instructionLength = 4;
+                        instructionList = memory.GetRange(instructionPointer, instructionLength);
+
+                        List<int> readInstructions = instructionList.GetRange(1, 2);
+                        List<int> values = GetValues(instructionList[0], readInstructions, memory);
+
+                        memory[instructionList[3]] = Convert.ToInt32(values[0] == values[1]);
+                    }
+                    else if (opCode == 99)
+                    {
+                        instructionLength = 1;
+                        instructionList = memory.GetRange(instructionPointer, instructionLength);
+                        Console.WriteLine("Halt");
+                        //Do nothing, but we shouldn't get here in the first place
+                    }
+                    //error conditions below
+                    else
+                    {
+                        //Uh-oh
+                        Console.WriteLine("Something bad happened. Instruction Pointer Location: " + instructionPointer + " Opcode: " + opCode);
+                        Console.ReadKey(true);
+                        System.Environment.Exit(1);
+                    }
+
+                    if (instructionLength == -1) //yes, this is meant to be separate from the if block above
+                    {
+                        //Uh-oh
+                        Console.WriteLine("Instruction length never set. Instruction Pointer Location: " + instructionPointer + " Opcode: " + opCode);
+                        Console.ReadKey(true);
+                        System.Environment.Exit(1);
+                    }
+
+
+                    //Move to next code block
+                    if (!pointerMoved)
+                    {
+                        instructionPointer += instructionLength;
+                    }
+                    pointerMoved = false;
+                    instructionLength = -1;
+                    opCode = memory[instructionPointer] % 100;
+                    output.Add("NextOpCode", opCode.ToString());
+                    return output;
+                }
+               else
+                {
+                    output.Add("Status", "Halt");
+                    return output;
+                }
+                
+
+            }
         }
+
+        //public static List<int> RunElfCode(List<int> memory, Stack<string> inputBuffer)
+        //{
+        //    Console.WriteLine("- Program Start -");
+        //    //declare stuff
+        //    int instructionPointer = 0;
+        //    int instructionLength = -1;
+        //    bool pointerMoved = false;
+        //    List<int> instructionList;
+        //    int opCode = memory[instructionPointer] % 100;
+        //    List<int> outputs = new List<int>();
+
+        //    //run the computer
+        //    while (opCode != 99)
+        //    {
+        //        if (opCode == 1) //Addition
+        //        {
+        //            instructionLength = 4;
+        //            instructionList = memory.GetRange(instructionPointer, instructionLength);
+
+        //            List<int> readInstructions = instructionList.GetRange(1, 2);
+        //            List<int> values = GetValues(instructionList[0], readInstructions, memory);
+
+        //            memory[instructionList[3]] = values[0] + values[1];
+        //        }
+        //        else if (opCode == 2) //Multiplication
+        //        {
+        //            instructionLength = 4;
+        //            instructionList = memory.GetRange(instructionPointer, instructionLength);
+
+        //            List<int> readInstructions = instructionList.GetRange(1, 2);
+        //            List<int> values = GetValues(instructionList[0], readInstructions, memory);
+
+        //            memory[instructionList[3]] = values[0] * values[1];
+        //        }
+        //        else if (opCode == 3) //input
+        //        {
+        //            int input;
+        //            instructionLength = 2;
+        //            instructionList = memory.GetRange(instructionPointer, instructionLength);
+        //            if (inputBuffer.Count() != 0)
+        //            {
+        //                string providedInput = inputBuffer.Pop();
+        //                if (providedInput != "manual")
+        //                {
+        //                    input = Int32.Parse(providedInput);
+        //                    Console.WriteLine("Input used: " + providedInput);
+        //                }
+        //                else
+        //                {
+        //                    Console.Write("Enter input: ");
+        //                    input = Int32.Parse(Console.ReadLine());
+        //                    Console.Write("\n");
+        //                }
+        //            }
+        //            else
+        //            {
+        //                Console.Write("Enter input: ");
+        //                input = Int32.Parse(Console.ReadLine());
+        //                Console.Write("\n");
+        //            }
+
+        //            memory[instructionList[1]] = input;
+        //        }
+        //        else if (opCode == 4) //output
+        //        {
+        //            instructionLength = 2;
+        //            instructionList = memory.GetRange(instructionPointer, instructionLength);
+
+        //            List<int> readInstructions = instructionList.GetRange(1, 1);
+        //            List<int> values = GetValues(instructionList[0], readInstructions, memory);
+
+        //            Console.WriteLine("Output: " + values[0].ToString());
+        //            outputs.Add(values[0]);
+        //        }
+        //        else if (opCode == 5) //jump if true
+        //        {
+        //            instructionLength = 3;
+        //            instructionList = memory.GetRange(instructionPointer, instructionLength);
+
+        //            List<int> readInstructions = instructionList.GetRange(1, 2);
+        //            List<int> values = GetValues(instructionList[0], readInstructions, memory);
+
+        //            if (values[0] != 0) { instructionPointer = values[1]; pointerMoved = true; }
+        //        }
+        //        else if (opCode == 6) //jump if false
+        //        {
+        //            instructionLength = 3;
+        //            instructionList = memory.GetRange(instructionPointer, instructionLength);
+
+        //            List<int> readInstructions = instructionList.GetRange(1, 2);
+        //            List<int> values = GetValues(instructionList[0], readInstructions, memory);
+
+        //            if (values[0] == 0) { instructionPointer = values[1]; pointerMoved = true; }
+        //        }
+        //        else if (opCode == 7) //less than
+        //        {
+        //            instructionLength = 4;
+        //            instructionList = memory.GetRange(instructionPointer, instructionLength);
+
+        //            List<int> readInstructions = instructionList.GetRange(1, 2);
+        //            List<int> values = GetValues(instructionList[0], readInstructions, memory);
+
+        //            memory[instructionList[3]] = Convert.ToInt32(values[0] < values[1]);
+        //        }
+        //        else if (opCode == 8) //equals
+        //        {
+        //            instructionLength = 4;
+        //            instructionList = memory.GetRange(instructionPointer, instructionLength);
+
+        //            List<int> readInstructions = instructionList.GetRange(1, 2);
+        //            List<int> values = GetValues(instructionList[0], readInstructions, memory);
+
+        //            memory[instructionList[3]] = Convert.ToInt32(values[0] == values[1]);
+        //        }
+        //        else if (opCode == 99)
+        //        {
+        //            instructionLength = 1;
+        //            instructionList = memory.GetRange(instructionPointer, instructionLength);
+        //            Console.WriteLine("Halt");
+        //            //Do nothing, but we shouldn't get here in the first place
+        //        }
+        //        //error conditions below
+        //        else
+        //        {
+        //            //Uh-oh
+        //            Console.WriteLine("Something bad happened. Instruction Pointer Location: " + instructionPointer + " Opcode: " + opCode);
+        //            Console.ReadKey(true);
+        //            System.Environment.Exit(1);
+        //        }
+
+        //        if (instructionLength == -1) //yes, this is meant to be separate from the if block above
+        //        {
+        //            //Uh-oh
+        //            Console.WriteLine("Instruction length never set. Instruction Pointer Location: " + instructionPointer + " Opcode: " + opCode);
+        //            Console.ReadKey(true);
+        //            System.Environment.Exit(1);
+        //        }
+
+
+        //        //Move to next code block
+        //        if (!pointerMoved)
+        //        {
+        //            instructionPointer += instructionLength;
+        //        }
+        //        pointerMoved = false;
+        //        instructionLength = -1;
+        //        opCode = memory[instructionPointer] % 100;
+        //    }
+
+        //    return outputs;
+        //}
 
         private static List<int> GetValues(int fullOp, List<int> instructions, List<int> memory)
         {
